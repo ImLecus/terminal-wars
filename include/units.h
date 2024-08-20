@@ -1,9 +1,15 @@
 #pragma once
 #include "tile.h"
-
+#include "color.h"
 enum UnitState {
     NORMAL,
     SELECTED
+};
+
+enum UnitMovementType {
+    GROUND,
+    WATER,
+    AIR  
 };
 
 // Units are basically tiles with movement and actions
@@ -16,16 +22,17 @@ public:
         this->position = {x,y};
         this->color = TEAM_COLORS[(int)color];
     }
-    void print(char* color){
-        printf("%s%s" ANSI_RESET, color, this->symbol);
+    void print(Color color){
+        printf("%s%s" ANSI_RESET, color.print(), this->symbol);
     }
     Pos position;
     bool empty;
+    UnitState state;
+    UnitMovementType type;
 protected:
     int movement_range;
     int vision_range;
     int price;
-    
 };
 
 // Infantery are the cheapest unit.

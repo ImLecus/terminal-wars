@@ -3,6 +3,7 @@
 #include "units.h"
 #include <string>
 #include <string.h>
+#include "color.h"
 class Map {
 public:
     Map(const char* filepath){
@@ -42,6 +43,9 @@ public:
                 break;
             case 'G':
                 this->terrain[y][x] = GrassTile();
+                break;
+            case 'F':
+                this->terrain[y][x] = ForestTile();
                 break;
             case 'M':
                 this->terrain[y][x] = MountainTile();

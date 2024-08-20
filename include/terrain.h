@@ -1,6 +1,6 @@
 #pragma once
 #include "tile.h"
-
+#include "color.h"
 // The higher the terrain is makes the units to boost their attack
 // Movement resistance makes units more difficult to traverse the tile
 class TerrainTile: public Tile {
@@ -13,15 +13,25 @@ protected:
 class GrassTile: public TerrainTile {
 public:
     GrassTile(){
-        this->color = "\x1b[102m";
+        this->color = {"","\x1b[48;5;41m"};
         this->symbol = " ";
+    }
+};  
+
+class ForestTile: public TerrainTile {
+public:
+    ForestTile(){
+        this->color = {"","\x1b[48;5;35m"};
+        this->symbol = "↟";
+        this->height = 1.1f;
+        this->movement_resistance = 2;
     }
 };  
 
 class RiverTile: public TerrainTile {
 public:
     RiverTile(){
-        this->color = "\x1b[46m";
+        this->color = {"","\x1b[48;5;31m"};
         this->symbol = " ";
         this->height = 0.8f;
     }
@@ -30,7 +40,7 @@ public:
 class BeachTile: public TerrainTile {
 public:
     BeachTile(){
-        this->color = "\x1b[46m";
+        this->color = {"","\x1b[48;5;185m"};
         this->symbol = " ";
         this->height = 0.8f;
     }
@@ -39,7 +49,7 @@ public:
 class OceanTile: public TerrainTile {
 public:
     OceanTile(){
-        this->color = "\x1b[44m";
+        this->color = {"","\x1b[48;5;26m"};
         this->symbol = " ";
         this->height = 0.8f;
     }
@@ -48,7 +58,7 @@ public:
 class LowMountainTile: public TerrainTile {
 public:
     LowMountainTile(){
-        this->color = "\x1b[43m";
+        this->color = {"","\x1b[48;5;143m"};
         this->symbol = " ";
         this->height = 1.2f;
         this->movement_resistance = 2;
@@ -58,7 +68,7 @@ public:
 class MountainTile: public TerrainTile {
 public:
     MountainTile(){
-        this->color = "\x1b[43m";
+        this->color = {"","\x1b[48;5;136m"};
         this->symbol = "^";
         this->height = 1.4f;
         this->movement_resistance = 3;
