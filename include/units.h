@@ -8,16 +8,24 @@ enum UnitState {
 
 // Units are basically tiles with movement and actions
 class Unit: public Tile {
-protected:
-    int movement_range;
-    int vision_range;
-    int price;
-    Pos position;
-
+public:
+    Unit(){
+        empty = true;
+    }
     Unit(Colors color, int x, int y){
         this->position = {x,y};
         this->color = TEAM_COLORS[(int)color];
     }
+    void print(char* color){
+        printf("%s%s" ANSI_RESET, color, this->symbol);
+    }
+    Pos position;
+    bool empty;
+protected:
+    int movement_range;
+    int vision_range;
+    int price;
+    
 };
 
 // Infantery are the cheapest unit.
@@ -41,5 +49,16 @@ public:
         this->movement_range = 2;
         this->vision_range = 1;
         this->price = 3000;
+    }
+};
+
+// Mechanized units are good against mechanical units.
+class Tank: public Unit {
+public:
+    Tank(Colors color, int x, int y): Unit(color, x, y)  {
+        this->symbol = "T";
+        this->movement_range = 4;
+        this->vision_range = 2;
+        this->price = 7000;
     }
 };
