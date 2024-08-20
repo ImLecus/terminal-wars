@@ -1,16 +1,9 @@
 #pragma once
-#include <iostream>
-
 #define ANSI_RESET "\x1b[0m"
 // Colors are represented as a pair ANSI characters
 struct Color {
     const char* foreground;
     const char* background;
-    char* print(){
-        char* color = (char*)malloc(sizeof(char) * 64);
-        sprintf(color, "%s%s", foreground, background);
-        return color;
-    }
 }; 
 
 const Color TEAM_COLORS[] = {

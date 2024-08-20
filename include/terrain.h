@@ -1,10 +1,12 @@
 #pragma once
 #include "tile.h"
-#include "color.h"
 // The higher the terrain is makes the units to boost their attack
 // Movement resistance makes units more difficult to traverse the tile
 class TerrainTile: public Tile {
 public:
+    TerrainTile(){
+        is_unit = true;
+    }
 protected:
     int movement_resistance = 1;
     float height = 1;
@@ -12,7 +14,7 @@ protected:
 
 class GrassTile: public TerrainTile {
 public:
-    GrassTile(){
+    GrassTile(): TerrainTile() {
         this->color = {"","\x1b[48;5;41m"};
         this->symbol = " ";
     }
@@ -20,7 +22,7 @@ public:
 
 class ForestTile: public TerrainTile {
 public:
-    ForestTile(){
+    ForestTile(): TerrainTile() {
         this->color = {"","\x1b[48;5;35m"};
         this->symbol = "↟";
         this->height = 1.1f;
@@ -30,7 +32,7 @@ public:
 
 class RiverTile: public TerrainTile {
 public:
-    RiverTile(){
+    RiverTile(): TerrainTile() {
         this->color = {"","\x1b[48;5;31m"};
         this->symbol = " ";
         this->height = 0.8f;
@@ -39,7 +41,7 @@ public:
 
 class BeachTile: public TerrainTile {
 public:
-    BeachTile(){
+    BeachTile(): TerrainTile() {
         this->color = {"","\x1b[48;5;185m"};
         this->symbol = " ";
         this->height = 0.8f;
@@ -48,7 +50,7 @@ public:
 
 class OceanTile: public TerrainTile {
 public:
-    OceanTile(){
+    OceanTile(): TerrainTile() {
         this->color = {"","\x1b[48;5;26m"};
         this->symbol = " ";
         this->height = 0.8f;
@@ -57,7 +59,7 @@ public:
 
 class LowMountainTile: public TerrainTile {
 public:
-    LowMountainTile(){
+    LowMountainTile(): TerrainTile() {
         this->color = {"","\x1b[48;5;143m"};
         this->symbol = " ";
         this->height = 1.2f;
@@ -67,7 +69,7 @@ public:
 
 class MountainTile: public TerrainTile {
 public:
-    MountainTile(){
+    MountainTile(): TerrainTile() {
         this->color = {"","\x1b[48;5;136m"};
         this->symbol = "^";
         this->height = 1.4f;
@@ -81,7 +83,7 @@ public:
         this->color = TEAM_COLORS[(int)color];
     }
 protected:
-    ClaimableTerrainTile(Colors color){
+    ClaimableTerrainTile(Colors color): TerrainTile() {
         this->color = TEAM_COLORS[(int)color];
     }
 };

@@ -2,11 +2,12 @@
 #include "terrain.h"
 #include "units.h"
 #include <string>
-#include <string.h>
-#include "color.h"
+#include <vector>
 class Map {
 public:
     Map(const char* filepath){
+        units.reserve(64);
+
         FILE* f = fopen(filepath, "r");
         if(!f){
             std::cout << "Could not open file '" << filepath << "'\n";
@@ -22,15 +23,15 @@ public:
                 break;
             }
             content.push_back(ch);
+            ++this->size.x;
             if(ch == '\n'){
                 ++this->size.y;
                 this->size.x = 0;
                 continue;
             }
-            ++this->size.x;
+            
             
         } while(ch != EOF);
-
         fclose(f);
         
         
@@ -68,7 +69,6 @@ public:
             case 'H':
                 this->terrain[y][x] = HouseTile(Colors::UNCLAIMED);
                 break;
-            
             case 'A':
                 this->terrain[y][x] = AirportTile(Colors::UNCLAIMED);
                 break;
@@ -85,12 +85,20 @@ public:
 
     }
 
-    void draw(){
+    
+
+    void draw(Pos cursor_position){
+        std::cout << "\x1B[2J\x1B[H";
+
         for(int y = 0; y <= this->size.y; ++y){
             for(int x = 0; x < this->size.x; ++x){
-                if(!this->units[y][x].empty){
-                    this->units[y][x].print(
-                        merge_colors(this->terrain[y][x],this->units[y][x])
+                if(x == cursor_position.x && y == cursor_position.y){
+                    draw_cursor(x,y);
+                    continue;
+                }
+                if(Unit* u = get_unit_at(x,y)){
+                    u->print(
+                        merge_colors(this->terrain[y][x],*u)
                     );
                     continue;
                 }
@@ -100,16 +108,50 @@ public:
         }
     }
 
-    void claim(int x, int y, Colors color){
+    inline void claim(int x, int y, Colors color){
         static_cast<ClaimableTerrainTile*>(&terrain[y][x])->claim(color);
     }
 
-    void addUnit(Unit u){
-        units[u.position.y][u.position.x] = u;
+    inline void addUnit(Unit u){
+        units.push_back(u);
+    }
+    Pos size;
+
+    //
+    //  TO-DO: change this function, generates a SIGSEGV
+    //
+    Tile* get_selection(Pos cursor_pos){
+        if(Unit* u = get_unit_at(cursor_pos.x, cursor_pos.y)){
+            return u;
+        }
+        return &this->terrain[cursor_pos.y][cursor_pos.x];
     }
 
 private:
-    Pos size;
+    
     TerrainTile terrain[64][64];
-    Unit units[64][64];  
+    std::vector<Unit> units;  
+
+    void draw_cursor(int x, int y){
+        Color selected = {"","\x1b[48;5;254m"};
+        if(Unit* u = get_unit_at(x,y)){
+            selected.foreground = u->color.foreground;
+            u->print(selected);
+        }
+        else{
+            Color saved_color = this->terrain[y][x].color;
+            this->terrain[y][x].color = selected;
+            this->terrain[y][x].print();
+            this->terrain[y][x].color = saved_color;
+        }
+    }
+
+    Unit* get_unit_at(int x, int y){
+        for(int i = 0; i < units.size(); ++i){
+            if(units[i].position.x == x && units[i].position.y == y){
+                return &units[i];
+            }
+        }
+        return nullptr;
+    }
 };

@@ -1,6 +1,6 @@
 #pragma once
 #include "color.h"
-
+#include <iostream>
 struct Pos {
     int x;
     int y;
@@ -9,9 +9,11 @@ struct Pos {
 class Tile {
 public:
     inline void print(){
-        printf("%s%s" ANSI_RESET, this->color.print(), this->symbol);
+        printf("%s%s%s" ANSI_RESET, this->color.foreground, this->color.background, this->symbol);
     }
     Color color;
+
+    bool is_unit;
 protected:
     const char* symbol = " ";
 };

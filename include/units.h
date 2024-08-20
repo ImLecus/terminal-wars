@@ -1,9 +1,10 @@
 #pragma once
 #include "tile.h"
-#include "color.h"
+
 enum UnitState {
     NORMAL,
-    SELECTED
+    SELECTED,
+    FINISHED
 };
 
 enum UnitMovementType {
@@ -19,11 +20,12 @@ public:
         empty = true;
     }
     Unit(Colors color, int x, int y){
-        this->position = {x,y};
+        this->position = Pos{x,y};
         this->color = TEAM_COLORS[(int)color];
+        is_unit = true;
     }
     void print(Color color){
-        printf("%s%s" ANSI_RESET, color.print(), this->symbol);
+        printf("%s%s%s" ANSI_RESET, color.foreground, color.background, this->symbol);
     }
     Pos position;
     bool empty;
