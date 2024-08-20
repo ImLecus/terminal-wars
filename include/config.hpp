@@ -1,5 +1,4 @@
 #pragma once
-#include "units.h"
-#include "terrain.h"
+#include "maps.h"
 
 #define VERSION "1.0"
