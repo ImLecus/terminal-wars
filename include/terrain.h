@@ -1,15 +1,23 @@
 #pragma once
 #include "tile.h"
+
+enum class TerrainMovementType{
+    GROUND,
+    WATER
+};
 // The higher the terrain is makes the units to boost their attack
 // Movement resistance makes units more difficult to traverse the tile
 class TerrainTile: public Tile {
 public:
-    TerrainTile(){
-        is_unit = true;
+    inline int get_movement_resistance(){
+        return movement_resistance;
     }
+
+    TerrainMovementType type = TerrainMovementType::GROUND;
 protected:
     int movement_resistance = 1;
     float height = 1;
+
 };
 
 class GrassTile: public TerrainTile {
@@ -54,6 +62,7 @@ public:
         this->color = {"","\x1b[48;5;26m"};
         this->symbol = " ";
         this->height = 0.8f;
+        this->type = TerrainMovementType::WATER;
     }
 };  
 

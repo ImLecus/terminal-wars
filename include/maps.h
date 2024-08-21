@@ -38,7 +38,7 @@ public:
 
         can_move_positions.clear();
         if(selected_unit){
-            calculate_move_zones(selected_unit);
+            calculate_move_zone(selected_unit->position, selected_unit->get_movement_range(), true, selected_unit->type);
         }
 
         for(int y = 0; y <= this->size.y; ++y){
@@ -127,8 +127,11 @@ private:
         }
     }
 
+    //
+    // TO-DO: check this function, generates SIGSEGV when the unit is at a border tile
     Unit* get_unit_at(int x, int y){
-        for(int i = 0; i < units.size(); ++i){
+        auto size = units.size();
+        for(int i = 0; i < size; ++i){
             if(units[i].position.x == x && units[i].position.y == y){
                 return &units[i];
             }
@@ -136,13 +139,24 @@ private:
         return nullptr;
     }
 
-    void calculate_move_zones(Unit* u){
-        can_move_positions.clear();
-        can_move_positions.push_back(u->position);
-        can_move_positions.push_back(Pos{u->position.x, u->position.y + 1});
-        can_move_positions.push_back(Pos{u->position.x, u->position.y - 1});
-        can_move_positions.push_back(Pos{u->position.x + 1, u->position.y});
-        can_move_positions.push_back(Pos{u->position.x - 1, u->position.y});
+    void calculate_move_zone(Pos pos, int range, bool first, UnitMovementType move_type){
+        if(pos.x < 0 || pos.y < 0 || pos.x > size.x || pos.y > size.y){
+            return;
+        }
+        TerrainTile t = terrain[pos.y][pos.x];
+        Unit* u = get_unit_at(pos.x, pos.y);
+        if( (!u || first) && (move_type == UnitMovementType::AIR || (int)move_type == (int)t.type)){
+            can_move_positions.push_back(pos);
+            
+            range -= t.get_movement_resistance();
+            if(range > 0){
+                calculate_move_zone(Pos{pos.x, pos.y + 1}, range, false, move_type);
+                calculate_move_zone(Pos{pos.x, pos.y - 1}, range, false, move_type);
+                calculate_move_zone(Pos{pos.x + 1, pos.y}, range, false, move_type);
+                calculate_move_zone(Pos{pos.x - 1, pos.y}, range, false, move_type);
+            }
+        }
+        
     }
 
 };

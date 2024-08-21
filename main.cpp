@@ -34,11 +34,7 @@ int main(){
     my_map.addUnit( Infantery(Colors::YELLOW, 36,3));
     my_map.claim(36,2, Colors::YELLOW);
   
-    game.on_state_update();
-    while (true)
-    {
-        game.wait_for_input();
-    }
+    game.start();
     
     
     

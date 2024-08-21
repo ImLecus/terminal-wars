@@ -7,7 +7,7 @@ enum UnitState {
     FINISHED
 };
 
-enum UnitMovementType {
+enum class UnitMovementType {
     GROUND,
     WATER,
     AIR  
@@ -22,7 +22,6 @@ public:
     Unit(Colors color, int x, int y){
         this->position = Pos{x,y};
         this->color = TEAM_COLORS[(int)color];
-        is_unit = true;
     }
     inline void print(Color color){
         printf("%s%s%s" ANSI_RESET, color.foreground, color.background, this->symbol);
@@ -34,6 +33,10 @@ public:
     void move(int x, int y){
         this->position.x += x;
         this->position.y += y;
+    }
+
+    inline int get_movement_range(){
+        return movement_range;
     }
 
     Pos position;

@@ -12,8 +12,6 @@ public:
         printf("%s%s%s" ANSI_RESET, this->color.foreground, this->color.background, this->symbol);
     }
     Color color;
-    bool is_unit;
-
     virtual ~Tile() = default;
 protected:
     const char* symbol = " ";
