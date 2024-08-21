@@ -8,21 +8,22 @@ public:
     }
 
     void select_unit_or_building(){
-        void* selection = map->get_selection(cursor_position);
-        if(Unit* u = (Unit*)selection){
-           (*u).state = SELECTED;
+        Tile* selection = map->get_selection(cursor_position);
+        if(Unit* u = dynamic_cast<Unit*>(selection)){
+            map->selected_unit = u;
+
            dialog = "Unit selected";
            on_state_update();
-           free(u);
-           return;
         }
-        if(TerrainTile* t = (TerrainTile*)selection){
+        else if(map->can_move_to(cursor_position)){
+            map->selected_unit->move(cursor_position);
+            map->selected_unit = nullptr;
+            on_state_update();
+        }
+        else if(ClaimableTerrainTile* t = dynamic_cast<ClaimableTerrainTile*>(selection)){
             dialog = "Building selected";
             on_state_update();
-            free(t);
         }
-        free(selection);
-        
     }
 
     void wait_for_input(){

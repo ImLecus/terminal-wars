@@ -3,106 +3,75 @@
 #include "units.h"
 #include <string>
 #include <vector>
+#include "mapcreator.h"
+
+static const char* CURSOR_BG = "\x1b[48;5;254m";
+static const char* CAN_MOVE_BG = "\x1b[48;5;252m";
+
 class Map {
 public:
     Map(const char* filepath){
         units.reserve(64);
 
-        FILE* f = fopen(filepath, "r");
-        if(!f){
-            std::cout << "Could not open file '" << filepath << "'\n";
-            return;
-        }
-        // Determine the size of the map (max is 64x64)
-        std::string content;
-        this->size = {0,0};
-        char ch;
-        do {
-            ch = fgetc(f);
-            if(ch == EOF){
-                break;
-            }
-            content.push_back(ch);
-            ++this->size.x;
-            if(ch == '\n'){
-                ++this->size.y;
-                this->size.x = 0;
-                continue;
-            }
-            
-            
-        } while(ch != EOF);
-        fclose(f);
-        
+        MapCreator map_creator;
+        map_creator.read(filepath);
+        size = map_creator.size;
         
         int x = 0, y = 0;
-        for(int i = 0; i < content.length(); ++i){
-            switch (content.at(i))     {
-            case '\n':
-                x = -1;
+        for(int i = 0; i < map_creator.buffer.size(); ++i){
+            if(map_creator.buffer.at(i) == '\n'){
+                x = 0;
                 ++y;
-                break;
-            case 'G':
-                this->terrain[y][x] = GrassTile();
-                break;
-            case 'F':
-                this->terrain[y][x] = ForestTile();
-                break;
-            case 'M':
-                this->terrain[y][x] = MountainTile();
-                break;
-            case 'L':
-                this->terrain[y][x] = LowMountainTile();
-                break;
-            case 'B':
-                this->terrain[y][x] = BeachTile();
-                break;
-            case 'R':
-                this->terrain[y][x] = RiverTile();
-                break;
-            case 'O':
-                this->terrain[y][x] = OceanTile();
-                break;
-            case 'C':
-                this->terrain[y][x] = CityTile(Colors::UNCLAIMED);
-                break;
-            case 'H':
-                this->terrain[y][x] = HouseTile(Colors::UNCLAIMED);
-                break;
-            case 'A':
-                this->terrain[y][x] = AirportTile(Colors::UNCLAIMED);
-                break;
-            case 'P':
-                this->terrain[y][x] = PortTile(Colors::UNCLAIMED);
-                break;
-            default:
-                this->terrain[y][x] = OceanTile();
-                break;
+                continue;
             }
+            this->terrain[y][x] = map_creator.get_tile(i);
             ++x;
         }
-
 
     }
 
     
 
     void draw(Pos cursor_position){
+        // clear screen
         std::cout << "\x1B[2J\x1B[H";
+
+        can_move_positions.clear();
+        if(selected_unit){
+            calculate_move_zones(selected_unit);
+        }
 
         for(int y = 0; y <= this->size.y; ++y){
             for(int x = 0; x < this->size.x; ++x){
+
+                bool to_move_drawed = false;
+
                 if(x == cursor_position.x && y == cursor_position.y){
-                    draw_cursor(x,y);
+                    draw_bg(x,y, CURSOR_BG);
                     continue;
                 }
+
+                for(int u = 0; u < can_move_positions.size(); ++u){
+                    if(can_move_positions.at(u).x == x &&
+                        can_move_positions.at(u).y == y){
+                            draw_bg(x,y, CAN_MOVE_BG);
+                            to_move_drawed = true;
+                            break;
+                    }
+                }
+                if(to_move_drawed){continue;}
+                
                 if(Unit* u = get_unit_at(x,y)){
                     u->print(
                         merge_colors(this->terrain[y][x],*u)
                     );
                     continue;
                 }
-                this->terrain[y][x].print();
+
+                if(!to_move_drawed){
+                    this->terrain[y][x].print();
+                }
+                
             }
             printf("%c",'\n');
         }
@@ -117,9 +86,7 @@ public:
     }
     Pos size;
 
-    //
-    //  TO-DO: change this function, generates a SIGSEGV
-    //
+
     Tile* get_selection(Pos cursor_pos){
         if(Unit* u = get_unit_at(cursor_pos.x, cursor_pos.y)){
             return u;
@@ -127,13 +94,27 @@ public:
         return &this->terrain[cursor_pos.y][cursor_pos.x];
     }
 
+    bool can_move_to(Pos target){
+        for(int u = 0; u < can_move_positions.size(); ++u){
+            if(can_move_positions.at(u).x == target.x &&
+                can_move_positions.at(u).y == target.y){
+
+                  return true;  
+            }
+        }
+        return false;
+    }
+
+    Unit* selected_unit;
+
 private:
     
     TerrainTile terrain[64][64];
     std::vector<Unit> units;  
+    std::vector<Pos> can_move_positions;
 
-    void draw_cursor(int x, int y){
-        Color selected = {"","\x1b[48;5;254m"};
+    void draw_bg(int x, int y,const char* bg){
+        Color selected = {"",bg};
         if(Unit* u = get_unit_at(x,y)){
             selected.foreground = u->color.foreground;
             u->print(selected);
@@ -154,4 +135,14 @@ private:
         }
         return nullptr;
     }
+
+    void calculate_move_zones(Unit* u){
+        can_move_positions.clear();
+        can_move_positions.push_back(u->position);
+        can_move_positions.push_back(Pos{u->position.x, u->position.y + 1});
+        can_move_positions.push_back(Pos{u->position.x, u->position.y - 1});
+        can_move_positions.push_back(Pos{u->position.x + 1, u->position.y});
+        can_move_positions.push_back(Pos{u->position.x - 1, u->position.y});
+    }
+
 };

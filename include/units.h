@@ -24,9 +24,18 @@ public:
         this->color = TEAM_COLORS[(int)color];
         is_unit = true;
     }
-    void print(Color color){
+    inline void print(Color color){
         printf("%s%s%s" ANSI_RESET, color.foreground, color.background, this->symbol);
     }
+
+    void move(Pos new_position){
+        this->position = new_position;
+    }
+    void move(int x, int y){
+        this->position.x += x;
+        this->position.y += y;
+    }
+
     Pos position;
     bool empty;
     UnitState state;
